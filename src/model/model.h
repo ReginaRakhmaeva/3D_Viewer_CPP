@@ -25,3 +25,18 @@
 // 6. View запрашивает отрисовку -> Model делегирует SceneDrawer'у
 //
 // Все в namespace s21
+
+// Model содержит Scene как основную структуру данных
+// Model = Facade для сложной подсистемы
+class Model {
+    // Агрегирует сложные компоненты:
+    std::unique_ptr<BaseFileReader> file_reader_;     // Загрузка файлов
+    Scene scene_;                                     // Данные модели
+    
+ public:
+    // Упрощенный интерфейс для сложной подсистемы:
+    FacadeOperationResult LoadScene(const std::string& path); //Загрузка файла
+    FacadeOperationResult MoveScene(double x, double y, double z); //Перемещение модели
+    FacadeOperationResult RotateScene(double x, double y, double z); //Поворот модели
+    FacadeOperationResult ScaleScene(double x, double y, double z); //Масштабирование модели
+};
