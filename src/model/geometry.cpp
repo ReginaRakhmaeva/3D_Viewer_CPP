@@ -14,18 +14,16 @@
 // - Figure: трансформация всех вершин фигуры (делегирует трансформацию каждой вершине)
 // - Scene: трансформация всех фигур в сцене (делегирует трансформацию каждой фигуре)
 // - SceneObject: абстрактный интерфейс для трансформируемых объектов
-//
-// КАК РАБОТАЕТ:
-// 1. TransformMatrixBuilder создает матрицы:
-//    - CreateRotationMatrix(angleX, angleY, angleZ) -> матрица поворота
-//    - CreateMoveMatrix(dx, dy, dz) -> матрица перемещения  
-//    - CreateScaleMatrix(sx, sy, sz) -> матрица масштабирования
-// 2. TransformMatrix применяется к 3DPoint: result = matrix * point
-// 3. При трансформации Figure: каждая Vertex трансформируется отдельно
-// 4. При трансформации Scene: каждая Figure трансформируется отдельно
-// 5. Edge обновляется автоматически при трансформации связанных вершин
-//
-// ОПТИМИЗАЦИЯ:
-// - Кэширование матриц трансформации
-// - Батчевая обработка вершин для больших моделей
-// - Использование SIMD инструкций для матричных операций
+
+
+TransformMatrix TransformMatrixBuilder::CreateRotationMatrix(double angleX, double angleY, double angleZ) {
+    // Создаем матрицы поворота используя s21_matrix+
+    S21Matrix rotateX = createRotationXMatrix(angleX);
+    S21Matrix rotateY = createRotationYMatrix(angleY);
+    S21Matrix rotateZ = createRotationZMatrix(angleZ);
+    
+    // Комбинируем матрицы
+    S21Matrix result = rotateZ * rotateY * rotateX;
+    
+    return TransformMatrix(result);
+}

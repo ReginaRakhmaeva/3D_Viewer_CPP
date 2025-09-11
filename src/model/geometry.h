@@ -29,3 +29,50 @@
 // 8. TransformMatrix применяется к 3DPoint через умножение матриц
 //
 // Все классы в namespace s21
+
+namespace s21 {
+    // Базовые структуры
+    struct 3DPoint { double x, y, z; };
+    
+    // Матрицы трансформации
+    class TransformMatrix {
+    private:
+        S21Matrix matrix_;  // ← Используем s21_matrix+
+        
+    public:
+        // Обертка над s21_matrix+:
+        void ApplyToPoint(3DPoint& point);
+        TransformMatrix Multiply(const TransformMatrix& other);
+    };
+    class TransformMatrixBuilder {
+    public:
+        static TransformMatrix CreateMoveMatrix(double dx, double dy, double dz);
+        static TransformMatrix CreateRotationMatrix(double angleX, double angleY, double angleZ);
+        static TransformMatrix CreateScaleMatrix(double scaleX, double scaleY, double scaleZ);
+    };
+    
+    // Геометрические объекты
+    class Vertex {
+    public:
+        void Transform(const TransformMatrix& matrix);
+    private:
+        3DPoint position_;
+    };
+    class Edge { Vertex* begin_, *end_; };
+
+    
+    class Figure {
+    public:
+        void Transform(const TransformMatrix& matrix);
+    private:
+        std::vector<Vertex> vertices_;
+    };
+
+    
+    class Scene {
+    public:
+        void Transform(const TransformMatrix& matrix);
+    private:
+        std::vector<Figure> figures_;
+    };
+}

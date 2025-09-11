@@ -1,30 +1,63 @@
 // MODEL.CPP - Реализация основной модели
 //
-// ЗАЧЕМ НУЖЕН:
-// Реализует Facade паттерн - предоставляет простой интерфейс для сложной подсистемы.
-// Скрывает сложность работы с множественными классами от View и Controller.
-//
 // ЧТО РЕАЛИЗУЕТ:
 // - Facade паттерн - упрощенный интерфейс для сложной подсистемы
-// - Singleton для Model (если нужен глобальный доступ)
 // - Загрузка OBJ файлов с парсингом вершин (v) и граней (f)
-// - Аффинные преобразования через матрицы (используя s21_matrix+)
-// - Undo/Redo через Command паттерн (стек команд)
-// - Стратегии трансформации (Move, Rotate, Scale)
+// - Аффинные преобразования через TransformMatrixBuilder (используя s21_matrix+)
 // - Нормализация модели при загрузке (центрирование, масштабирование)
 // - Обработка ошибок и возврат FacadeOperationResult
 // - Работа с Scene, Figure, Vertex, Edge классами
 //
 // КАК РАБОТАЕТ:
 // 1. LoadScene() -> создает FileReader, парсит OBJ, создает Scene, нормализует
-// 2. MoveScene() -> создает MoveStrategy, оборачивает в TransformCommand, выполняет
-// 3. RotateScene() -> создает RotateStrategy, оборачивает в TransformCommand, выполняет  
-// 4. ScaleScene() -> создает ScaleStrategy, оборачивает в TransformCommand, выполняет
-// 5. DrawScene() -> делегирует отрисовку SceneDrawer'у
-// 6. Undo() -> извлекает команду из стека, вызывает Undo()
-// 7. Redo() -> извлекает команду из стека redo, выполняет снова
-//
-// ОПТИМИЗАЦИЯ:
-// - Кэширование трансформированных вершин
-// - Батчевая обработка для больших моделей (до 1M вершин)
-// - Ленивая загрузка для больших файлов
+// 2. MoveScene() -> создает матрицу перемещения и применяет к сцене
+// 3. RotateScene() -> создает матрицу поворота и применяет к сцене
+// 4. ScaleScene() -> создает матрицу масштабирования и применяет к сцене
+
+#include "model.h"
+#include "geometry.h"  // TransformMatrixBuilder, TransformMatrix
+
+FacadeOperationResult Model::MoveScene(double x, double y, double z) {
+    try {
+        // 1. Создает матрицу перемещения
+        TransformMatrix matrix = TransformMatrixBuilder::CreateMoveMatrix(x, y, z);
+        
+        // 2. Применяет к сцене
+        scene_.Transform(matrix);
+        
+        return FacadeOperationResult(true, "Move successful");
+        
+    } catch (const std::exception& e) {
+        return FacadeOperationResult(false, e.what());
+    }
+}
+
+FacadeOperationResult Model::RotateScene(double x, double y, double z) {
+    try {
+        // 1. Создает матрицу поворота
+        TransformMatrix matrix = TransformMatrixBuilder::CreateRotationMatrix(x, y, z);
+        
+        // 2. Применяет к сцене
+        scene_.Transform(matrix);
+        
+        return FacadeOperationResult(true, "Rotation successful");
+        
+    } catch (const std::exception& e) {
+        return FacadeOperationResult(false, e.what());
+    }
+}
+
+FacadeOperationResult Model::ScaleScene(double x, double y, double z) {
+    try {
+        // 1. Создает матрицу масштабирования
+        TransformMatrix matrix = TransformMatrixBuilder::CreateScaleMatrix(x, y, z);
+        
+        // 2. Применяет к сцене
+        scene_.Transform(matrix);
+        
+        return FacadeOperationResult(true, "Scaling successful");
+        
+    } catch (const std::exception& e) {
+        return FacadeOperationResult(false, e.what());
+    }
+}

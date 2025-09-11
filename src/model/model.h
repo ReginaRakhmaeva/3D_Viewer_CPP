@@ -10,7 +10,6 @@
 // - Агрегирует: BaseFileReader (загрузка), SceneDrawerBase (отрисовка), Scene (данные)
 // - Упрощенный интерфейс: LoadScene(), MoveScene(), RotateScene(), ScaleScene(), DrawScene()
 // - Возвращает FacadeOperationResult для всех операций (успех/ошибка)
-// - Undo/redo функциональность через Command паттерн (стек команд)
 // - Управление стратегиями трансформации (Strategy паттерн)
 // - Работа с TransformMatrix для аффинных преобразований
 // - Загрузка OBJ файлов через FileReader
@@ -20,8 +19,7 @@
 // 1. Пользователь нажимает "Загрузить файл" -> Controller вызывает model.LoadScene()
 // 2. Model делегирует загрузку FileReader'у, получает Scene
 // 3. Пользователь поворачивает модель -> Controller вызывает model.RotateScene()
-// 4. Model создает RotateStrategy, оборачивает в TransformCommand, выполняет
-// 5. Команда сохраняется в стек для undo/redo
+// 4. Model создает RotateStrategy и применяет к сцене
 // 6. View запрашивает отрисовку -> Model делегирует SceneDrawer'у
 //
 // Все в namespace s21
@@ -39,4 +37,24 @@ class Model {
     FacadeOperationResult MoveScene(double x, double y, double z); //Перемещение модели
     FacadeOperationResult RotateScene(double x, double y, double z); //Поворот модели
     FacadeOperationResult ScaleScene(double x, double y, double z); //Масштабирование модели
+    const Scene& GetScene() const;
+    bool HasScene() const;
+};
+
+// ====== Результат операций Facade ======
+class FacadeOperationResult {
+ public:
+    FacadeOperationResult(bool success, const std::string& message);
+    FacadeOperationResult(bool success, const std::string& message, Scene scene);
+    
+    bool IsSuccess() const { return success_; }
+    bool IsError() const { return !success_; }
+    
+    std::string GetErrorMessage() const { return message_; }
+    const Scene& GetScene() const { return scene_; }
+
+ private:
+    bool success_;
+    std::string message_;
+    Scene scene_;
 };

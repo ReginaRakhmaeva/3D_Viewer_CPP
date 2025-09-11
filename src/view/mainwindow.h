@@ -2,7 +2,7 @@
 //
 // ЗАЧЕМ НУЖЕН:
 // Представляет пользовательский интерфейс приложения. Реализует View в MVC
-// паттерне - только отображение данных и обработка пользовательского ввода.
+// паттерне - только отображение данных и обработку пользовательского ввода.
 // НЕ содержит бизнес-логики, только UI элементы и сигналы.
 //
 // ЧТО СОДЕРЖИТ:
@@ -31,3 +31,23 @@
 // - Обработка пользовательского ввода и отправка сигналов
 //
 // Все в namespace s21
+
+namespace s21 {
+    class MainWindow : public QMainWindow {
+        // UI элементы: кнопки, поля ввода, ModelWidget
+    };
+}
+
+// src/view/modelwidget.h
+namespace s21 {
+    class ModelWidget : public QWidget {
+        Model* model_;
+        
+    protected:
+        void paintEvent(QPaintEvent* event) override;
+        
+    private:
+        void drawScene(const Scene& scene);
+        void project3DTo2D(const 3DPoint& point3d, QPoint& point2d);
+    };
+}

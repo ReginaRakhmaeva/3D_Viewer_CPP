@@ -35,3 +35,16 @@
 // - Делегирование отображения в View
 //
 // Все в namespace s21
+
+namespace s21 {
+    class Controller {
+        Model* model_;
+        View* view_;
+        
+    public:
+        void onLoadFile(const std::string& path);
+        void onMoveModel(double x, double y, double z);
+        void onRotateModel(double x, double y, double z);
+        void onScaleModel(double x, double y, double z);
+    };
+}
