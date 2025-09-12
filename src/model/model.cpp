@@ -18,7 +18,7 @@
 #include "geometry.h"  // TransformMatrixBuilder, TransformMatrix
 
 FacadeOperationResult Model::MoveScene(double x, double y, double z) {
-    try {
+
         // 1. Создает матрицу перемещения
         TransformMatrix matrix = TransformMatrixBuilder::CreateMoveMatrix(x, y, z);
         
@@ -27,13 +27,11 @@ FacadeOperationResult Model::MoveScene(double x, double y, double z) {
         
         return FacadeOperationResult(true, "Move successful");
         
-    } catch (const std::exception& e) {
-        return FacadeOperationResult(false, e.what());
-    }
+  
 }
 
 FacadeOperationResult Model::RotateScene(double x, double y, double z) {
-    try {
+  
         // 1. Создает матрицу поворота
         TransformMatrix matrix = TransformMatrixBuilder::CreateRotationMatrix(x, y, z);
         
@@ -42,13 +40,11 @@ FacadeOperationResult Model::RotateScene(double x, double y, double z) {
         
         return FacadeOperationResult(true, "Rotation successful");
         
-    } catch (const std::exception& e) {
-        return FacadeOperationResult(false, e.what());
-    }
+   
 }
 
 FacadeOperationResult Model::ScaleScene(double x, double y, double z) {
-    try {
+   
         // 1. Создает матрицу масштабирования
         TransformMatrix matrix = TransformMatrixBuilder::CreateScaleMatrix(x, y, z);
         
@@ -56,8 +52,5 @@ FacadeOperationResult Model::ScaleScene(double x, double y, double z) {
         scene_.Transform(matrix);
         
         return FacadeOperationResult(true, "Scaling successful");
-        
-    } catch (const std::exception& e) {
-        return FacadeOperationResult(false, e.what());
-    }
+    
 }

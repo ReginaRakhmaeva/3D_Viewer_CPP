@@ -5,35 +5,46 @@ project(3DViewer)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Определение операционной системы
+if(APPLE)
+    set(SHARED_EXT ".dylib")
+elseif(WIN32)
+    set(SHARED_EXT ".dll")
+else()
+    set(SHARED_EXT ".so")
+endif()
+
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 
 # Исходные файлы
 set(SOURCES
-    src/model/geometry.cpp
-    src/model/io.cpp
-    src/model/strategies.cpp
-    src/model/model.cpp
-    src/view/mainwindow.cpp
-    src/view/modelwidget.cpp
-    src/controller/controller.cpp
-    src/view/main.cpp
+    model/geometry.cpp
+    model/io.cpp
+    model/model.cpp
+    view/mainwindow.cpp
+    view/modelwidget.cpp
+    view/rendering.cpp
+    view/main.cpp
+    controller/controller.cpp
 )
 
 # Заголовочные файлы
 set(HEADERS
-    src/model/geometry.h
-    src/model/io.h
-    src/model/strategies.h
-    src/model/model.h
-    src/view/mainwindow.h
-    src/view/modelwidget.h
-    src/controller/controller.h
+    model/geometry.h
+    model/io.h
+    model/model.h
+    view/mainwindow.h
+    view/modelwidget.h
+    view/rendering.h
+    controller/controller.h
 )
 
 # Создание исполняемого файла
-qt6_add_executable(3DViewer ${SOURCES} ${HEADERS})
-qt6_add_resources(3DViewer "resources" PREFIX "/" FILES
-    # ресурсы если нужны
-)
-
+add_executable(3DViewer ${SOURCES} ${HEADERS})
 target_link_libraries(3DViewer Qt6::Core Qt6::Widgets)
+
+# Установка выходной директории
+set_target_properties(3DViewer PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
