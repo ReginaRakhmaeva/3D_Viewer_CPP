@@ -9,7 +9,7 @@
 // - NormalizationParameters класс (параметры нормализации модели)
 // - FacadeOperationResult класс (результат операций с ошибками)
 // - Парсинг OBJ файлов: вершины (v x y z) и грани (f v1 v2 v3 ...)
-// - Нормализация координат модели (центрирование в начало координат, масштабирование)
+// - Нормализация координат mesh'а (центрирование в начало координат, масштабирование)
 // - Обработка ошибок чтения файлов (файл не найден, неправильный формат, поврежденные данные)
 //
 // Все в namespace s21
@@ -19,7 +19,8 @@
 
 #include <string>
 #include <vector>
-#include "geometry.h"  // Scene, Figure, Vertex, Edge, 3DPoint
+#include "geometry.h"  // 3DPoint, TransformMatrix
+#include "model.h"     // Mesh, Vertex, Edge
 
 namespace s21 {
 
@@ -48,24 +49,36 @@ private:
 // ====== Чтение OBJ файлов ======
 class FileReader {
 public:
-    FacadeOperationResult ReadScene(const std::string& filepath, 
+    FacadeOperationResult ReadMesh(const std::string& filepath, 
                                    const NormalizationParameters& params);
-            // 1. Открытие файла
-        // 2. Парсинг вершин (v x y z)
-        // 3. Парсинг граней (f v1 v2 v3 ...)
-        // 4. Создание Vertex и Edge объектов
-        // 5. Создание Figure и Scene
-        // 6. Нормализация модели
-        // 7. Возврат результата
+    
+    // 1. Открытие файла
+    // 2. Парсинг вершин (v x y z) -> temp_vertices_
+    // 3. Парсинг граней (f v1 v2 v3 ...) -> temp_faces_
+    // 4. Создание Vertex объектов из temp_vertices_
+    // 5. Создание Edge объектов из temp_faces_
+    // 6. Создание Mesh с Vertex и Edge
+    // 7. Нормализация mesh'а
+    // 8. Возврат результата
+
 private:
+    // Временные контейнеры для парсинга
+    std::vector<3DPoint> temp_vertices_;           // Сырые координаты из OBJ
+    std::vector<std::vector<int>> temp_faces_;     // Индексы граней из OBJ
+    
     // Вспомогательные методы парсинга OBJ
-    bool parseVertex(const std::string& line, 3DPoint& point); // Парсит строку "v x y z" в 3DPoint
-    bool parseFace(const std::string& line, std::vector<int>& indices); // Парсит строку "f v1 v2 v3" в индексы вершин
-    void normalizeScene(Scene& scene, const NormalizationParameters& params); // Нормализует сцену (центрирование + масштабирование)
+    bool parseVertex(const std::string& line, 3DPoint& point); // Парсит "v x y z" -> 3DPoint
+    bool parseFace(const std::string& line, std::vector<int>& indices); // Парсит "f v1 v2 v3" -> индексы
+    void normalizeMesh(Mesh& mesh, const NormalizationParameters& params); // Нормализует mesh
+    
+    // Создание финальных структур
+    Mesh createMeshFromTempData(); // Создает Mesh из temp_vertices_ и temp_faces_
+    void createEdgesFromFaces(Mesh& mesh); // Преобразует Face'ы (грани) в Edge'ы (ребра)
     
     // Вспомогательные методы
-    std::vector<std::string> splitString(const std::string& str, char delimiter); // Разбивает строку по разделителю
-    bool isValidVertexIndex(int index, size_t vertexCount); // Проверяет корректность индекса вершины
+    std::vector<std::string> splitString(const std::string& str, char delimiter);
+    bool isValidVertexIndex(int index, size_t vertexCount);
+    void clearTempData(); // Очищает временные контейнеры
 };
 
 }  // namespace s21

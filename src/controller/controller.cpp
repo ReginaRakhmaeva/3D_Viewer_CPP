@@ -23,8 +23,8 @@
 //    - onMove/onRotate/onScale(): вызывает model.Transform(), обновляет View
 //    - onSettingsChanged(): обновляет настройки отображения
 // 4. Методы обновления View:
-//    - updateModelInfo(): передает информацию о модели в View
-//    - updateDisplay(): обновляет отображение 3D модели
+//    - updateModelInfo(): передает информацию о mesh'е в View
+//    - updateDisplay(): обновляет отображение 3D mesh'а
 //    - showError(): показывает ошибки пользователю
 //
 // ОБРАБОТКА СОБЫТИЙ:

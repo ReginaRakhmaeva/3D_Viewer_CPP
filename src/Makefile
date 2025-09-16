@@ -50,36 +50,6 @@ all: 3DViewer
 	$(CXX) $(CXXFLAGS) $(QTFLAGS) -o $@ $(SOURCES) $(QTLIBS) $(LDFLAGS)
 	@echo "=== Build completed ==="
 
-# === Qt сборка через CMake ===
-3DViewer_qt: 
-	@echo "=== Building Qt frontend ==="
-	@mkdir -p $(QT_BUILD_DIR)
-	cd $(QT_BUILD_DIR) && cmake "$$(pwd)/.." && make
-	@echo "=== Qt build completed ==="
-
-# === Каталог установки ===
-PREFIX = /usr/local
-BINDIR = $(PREFIX)/bin
-
-# Проверка прав на запись в системные директории
-check_permissions:
-	@if [ ! -w $(PREFIX) ]; then \
-		echo "  1. Run 'sudo make install' "; \
-		exit 1; \
-	fi
-
-install: all check_permissions
-	@echo "=== Installing 3D Viewer ==="
-	@mkdir -p $(BINDIR)
-	cp 3DViewer $(BINDIR)/
-	@echo "Installed to $(BINDIR)"
-	@echo "You may need to run 'sudo ldconfig' to update library cache"
-
-uninstall: check_permissions
-	@echo "=== Uninstalling 3D Viewer ==="
-	rm -f $(BINDIR)/3DViewer
-	@echo "Uninstalled from $(BINDIR)"
-
 clean:
 	@echo "=== Cleaning build artifacts ==="
 	# Удаляем исполняемые файлы
@@ -113,25 +83,6 @@ clean:
 
 	@echo "=== Clean completed ==="
 
-# === Форматирование кода ===
-format_check:
-	@if [ -f ../materials/linters/.clang-format ]; then \
-		cp ../materials/linters/.clang-format .clang-format; \
-		find . -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp" | xargs clang-format -n; \
-		rm -f .clang-format; \
-	else \
-		echo "Clang-format config not found"; \
-	fi
-
-format_fix:
-	@if [ -f ../materials/linters/.clang-format ]; then \
-		cp ../materials/linters/.clang-format .clang-format; \
-		find . -name "*.c" -o -name "*.cpp" -o -name "*.h" -o -name "*.hpp" | xargs clang-format -i; \
-		rm -f .clang-format; \
-	else \
-		echo "Clang-format config not found"; \
-	fi
-
 # === Тесты ===
 # TEST_SOURCES = test/test_geometry.cpp \
 #                test/test_io.cpp \
@@ -160,30 +111,3 @@ coverage:
 	genhtml test/coverage_filtered.info --output-directory test/coverage_report --title "3D Viewer Coverage"
 
 
-# === Проверка зависимостей ===
-check-deps:
-	@echo "=== Checking dependencies ==="
-	@which g++ > /dev/null || (echo "Error: g++ not found" && exit 1)
-	@pkg-config --exists Qt6Core Qt6Widgets || (echo "Error: Qt6 not found" && exit 1)
-	@echo "All dependencies found"
-
-# === Помощь ===
-help:
-	@echo "Available targets:"
-	@echo "  all         - Build project (default)"
-	@echo "  install     - Install to /usr/local/bin"
-	@echo "  uninstall   - Remove from /usr/local/bin"
-	@echo "  clean       - Clean temporary files"
-	@echo "  dvi         - Generate documentation"
-	@echo "  dist        - Create distribution archive"
-	@echo "  test        - Run tests"
-	@echo "  coverage    - Run tests with coverage"
-	@echo "  run         - Build and run"
-	@echo "  debug       - Build with debug info"
-	@echo "  valgrind    - Check for memory leaks"
-	@echo "  format_check- Check code formatting"
-	@echo "  format_fix  - Fix code formatting"
-	@echo "  check-deps  - Check dependencies"
-	@echo "  help        - This help"
-
-.PHONY: all install uninstall clean dvi dist test coverage run debug valgrind format_check format_fix check-deps help
